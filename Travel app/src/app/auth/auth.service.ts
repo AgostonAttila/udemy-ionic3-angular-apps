@@ -10,6 +10,10 @@ export class AuthService {
     return this._userIsAuthenticated;
   }
 
+  get userId() {
+    return this.userId;
+  }
+
   login() {
     this._userIsAuthenticated = true;
   }
