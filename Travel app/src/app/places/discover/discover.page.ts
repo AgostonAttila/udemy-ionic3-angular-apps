@@ -9,13 +9,14 @@ import { AuthService } from 'src/app/auth/auth.service';
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.page.html',
-  styleUrls: ['./discover.page.scss']
+  styleUrls: ['./discover.page.scss'],
 })
 export class DiscoverPage implements OnInit, OnDestroy {
   loadedPlaces: Place[];
   listedLoadedPlaces: Place[];
-  relaventPlaces: Place[];
+  relevantPlaces: Place[];
   private placesSub: Subscription;
+  isLoading = false;
 
   constructor(
     private placesService: PlacesService,
@@ -24,9 +25,9 @@ export class DiscoverPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.placesSub = this.placesService.places.subscribe(places => {
+    this.placesSub = this.placesService.places.subscribe((places) => {
       this.loadedPlaces = places;
-      this.relaventPlaces = this.loadedPlaces;
+      this.relevantPlaces = this.loadedPlaces;
       this.listedLoadedPlaces = this.loadedPlaces.slice(1);
     });
   }
@@ -41,13 +42,20 @@ export class DiscoverPage implements OnInit, OnDestroy {
     this.menuCtrl.toggle();
   }
 
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.placesService.fetchPlaces().subscribe(() => {
+      this.isLoading = false;
+    });
+  }
+
   onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
     if (event.detail.value === 'all') {
-      this.relaventPlaces = this.loadedPlaces;
-      this.listedLoadedPlaces = this.relaventPlaces.slice(1);
+      this.relevantPlaces = this.loadedPlaces;
+      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
     } else {
-      this.relaventPlaces = this.loadedPlaces.filter(
-        place => place.userId !== this.authService.userId
+      this.relevantPlaces = this.loadedPlaces.filter(
+        (place) => place.userId !== this.authService.userId
       );
     }
   }
